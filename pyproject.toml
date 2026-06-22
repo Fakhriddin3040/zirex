@@ -1,0 +1,48 @@
+[project]
+name = "firex"
+version = "0.1.0"
+description = "XTTS-v2 + Kokoro TTS, faster-whisper STT, and Llama 3.1 (unsloth) stack"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    # ── TTS ───────────────────────────────────────────────────────────────
+    "coqui-tts>=0.27.5",       # XTTS-v2 (voice cloning)
+    "kokoro>=0.9.4",           # Kokoro-82M
+    "soundfile>=0.13",         # WAV I/O
+    # ── STT ───────────────────────────────────────────────────────────────
+    "faster-whisper>=1.2.1",   # Whisper via CTranslate2 (no torch needed)
+    # ── LLM / fine-tuning ─────────────────────────────────────────────────
+    "unsloth>=2026.6.9",       # Llama 3.1 4-bit inference + LoRA
+    # transformers 5.x removed transformers.pytorch_utils.isin_mps_friendly,
+    # which coqui-tts 0.27.5 imports. 4.57.6 is the newest release that has it
+    # and is still inside unsloth's allowed window (excludes 4.57.0/.4/.5).
+    "transformers>=4.57.6,<4.58",
+    # ── Torch stack (ABI-locked) ──────────────────────────────────────────
+    #   unsloth requires torch<2.11; xformers 0.0.34 is the build matched to
+    #   torch 2.10; numpy<2.5 is required by numba (pulled via librosa/coqui).
+    "torch==2.10.0",
+    "torchaudio==2.10.0",
+    "torchcodec>=0.10,<0.11",  # audio IO for coqui on torch>=2.9; 0.10 ↔ torch 2.10
+    "xformers==0.0.34",
+    "numpy>=2.4,<2.5",
+]
+
+[tool.uv]
+# Use pyenv-managed interpreters, never uv-downloaded ones.
+python-preference = "only-system"
+# Resolve only for this machine (Arch Linux x86_64). Without this, uv's
+# universal resolution also solves for macOS-arm64, where unsloth-zoo pulls
+# mlx-vlm (transformers>=5.5.0) and conflicts with the coqui transformers pin.
+environments = ["sys_platform == 'linux'"]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "pre-commit>=4.6.0",
+    "ruff>=0.15.18",
+]
+test = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-coverage>=0.0",
+]
