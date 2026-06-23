@@ -1,6 +1,6 @@
-# Firex - LLM based modular assistant with agentic and workflow abilities
+# Zirex - LLM based modular assistant with agentic and workflow abilities
 
-It's and AI chatbot using STT (Speach to Text) and TTS (Text to Speach) for audio conversation in real-time
+It's and AI chatbot using STT (Speech to Text) and TTS (Text to Speech) for audio conversation in real-time
 using lightweight open-source LLM's and models for handling.
 
 Basic architecture:
@@ -13,10 +13,10 @@ Listen for trigger -> STT -> LLM -> <background_workflows> -> TTS -> Play the an
 
 ### Stack
 
-**XTTS2** - Model for converting text to speach (TTS) for making audio from LLM answers
+**XTTS2** - Model for converting text to speech (TTS) for making audio from LLM answers
 
-**OpenAI Whisper** - Model for converting speach to text (STT) for making text from audio for asking
-a question to LLM using the speach
+**OpenAI Whisper** - Model for converting speech to text (STT) for making text from audio for asking
+a question to LLM using the speech
 
 **Llama 3.1 8B Q4** - LLM model, the brain of the workflow. On current stage, Llama just takes a query and makes an answer.
 On the future, these functionalities will be added:

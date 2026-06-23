@@ -1,7 +1,7 @@
 [project]
-name = "firex"
+name = "Zirex"
 version = "0.1.0"
-description = "XTTS-v2 + Kokoro TTS, faster-whisper STT, and Llama 3.1 (unsloth) stack"
+description = "Local voice assistant"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 dependencies = [
@@ -25,6 +25,7 @@ dependencies = [
     "torchcodec>=0.10,<0.11",  # audio IO for coqui on torch>=2.9; 0.10 ↔ torch 2.10
     "xformers==0.0.34",
     "numpy>=2.4,<2.5",
+    "sounddevice>=0.5.5",
 ]
 
 [tool.uv]

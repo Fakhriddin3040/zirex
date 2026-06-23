@@ -16,3 +16,5 @@ tts_output/
 # IDE
 .idea
 .claude
+.ruff_cache
+*cache*
