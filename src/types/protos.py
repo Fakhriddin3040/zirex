@@ -1,38 +1,37 @@
 from typing import (
-    AsyncIterator,
-    Iterator,
+    Iterable,
     Protocol,
     runtime_checkable,
 )
 
-from src.types import FloatArray
+from src.types import FloatArray, TokenizerOutput
 
 
 @runtime_checkable
 class SpeechToTextServiceProto(Protocol):
-    def convert(self, stream: Iterator[FloatArray]) -> Iterator[str]:
+    def convert(self, speech: FloatArray) -> str:
         """
-        Converts speech to text using streams.
+        Converts speech to text.
 
         Args:
-            stream (Iterator[FloatArray]): Speech stream
+            speech (Iterable[FloatArray]): speech
 
         Raises:
             ?
 
         Returns:
-            Stream of text
+            Whole text
         """
 
 
 @runtime_checkable
 class TextToSpeechServiceProto(Protocol):
-    def convert(self, stream: Iterator[str]) -> Iterator[FloatArray]:
+    def convert(self, text: str) -> Iterable[FloatArray]:
         """
-        Converts text to speech using text stream
+        Converts text to speech
 
         Args:
-            stream (Iterator[str]): Part of text to convert to speech
+             text (str): Text to convert to speech
 
         Raises:
             ?
@@ -43,26 +42,26 @@ class TextToSpeechServiceProto(Protocol):
 
 
 @runtime_checkable
-class AsyncStreamServiceProto[TIn, TOut](Protocol):
-    """
-    Queue-based async wrapper around a synchronous stream service.
+class LLMServiceProto(Protocol):
+    def ask(self, text: str) -> Iterable[str]:
+        """Ask LLM
 
-    Producers push items with ``put``/``feed`` from the event loop; the blocking
-    conversion runs off-loop and results are consumed by iterating the instance.
-    """
+        Args:
+            text (str): Text to ask
 
-    async def put(self, item: TIn) -> None:
-        """Enqueue a single input item for conversion."""
-
-    async def feed(self, stream: AsyncIterator[TIn]) -> None:
-        """Drain an async input stream into the conversion queue."""
-
-    def close(self) -> None:
-        """Signal end-of-input. No further ``put``/``feed`` is allowed."""
-
-    def __aiter__(self) -> AsyncIterator[TOut]:
-        """Iterate converted output items as they become available."""
+        Raises:
+            ?
+        """
 
 
-AsyncSpeechToTextServiceProto = AsyncStreamServiceProto[FloatArray, str]
-AsyncTextToSpeechServiceProto = AsyncStreamServiceProto[str, FloatArray]
+@runtime_checkable
+class TextTokenizerProto[TOut: TokenizerOutput](Protocol):
+    def tokenize(self, text: str) -> TOut:
+        """Converts text to tokens
+
+        Args:
+            text (str): Text for tokenization
+
+        Raises:
+            ?
+        """

@@ -1,7 +1,8 @@
 from faster_whisper import WhisperModel
 from kokoro import KPipeline
-from typing import Iterator
+from typing import Iterable
 
+from transformers import PreTrainedTokenizerFast
 
 from src.types.protos import (
     FloatArray,
@@ -9,6 +10,30 @@ from src.types.protos import (
     SpeechToTextServiceProto,
 )
 from src.utils.type_checking import ensure_isimplementation
+from types import TokenizerOutput
+
+
+class WhisperSpeechToTextService:
+    def __init__(self) -> None:
+        self._model = WhisperModel(
+            "large-v3-turbo",
+            device="cuda",
+            compute_type="float16",
+            download_root="/home/fakhriddin3040/models/wishper-large-v3-turbo",
+        )
+
+    def convert(self, speech: FloatArray) -> str:
+        segments, _ = self._model.transcribe(
+            speech,
+            language="en",
+            beam_size=5,
+            no_speech_threshold=0.6,
+            temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
+            compression_ratio_threshold=2.4,
+            condition_on_previous_text=False,
+            log_prob_threshold=1,
+        )
+        return "".join(seg.text for seg in segments)
 
 
 class KokoroTextToSpeechService:
@@ -16,12 +41,12 @@ class KokoroTextToSpeechService:
         self._pipeline = KPipeline(lang_code="a", device="cuda")
         self._voice = "am_adam"
 
-    def convert(self, stream: Iterator[str]) -> Iterator[FloatArray]:
+    def convert(self, stream: str) -> Iterable[FloatArray]:
         """
         Converts text to speech using text stream
 
         Args:
-            stream (Iterator[str]): Part of text to convert to speech
+            stream (str): Part of text to convert to speech
 
         Raises:
             ?
@@ -34,20 +59,36 @@ class KokoroTextToSpeechService:
                 yield res.audio
 
 
-class WhisperSpeechToTextService:
+class TextTokenizer:
     def __init__(self) -> None:
-        self._model = WhisperModel(
-            "large-v3-turbo",
-            device="cuda",
-            compute_type="float16",
-            download_root="/home/fakhriddin3040/models/wishper-large-v3-turbo",
+        self._tokenizer = PreTrainedTokenizerFast(
+            "/home/fakhriddin3040/models/llama-3.1-8b"
         )
 
-    def convert(self, stream: Iterator[FloatArray]) -> Iterator[str]:
-        for part in stream:
-            segments, _ = self._model.transcribe(audio=part, language="en", beam_size=5)
-            for segment in segments:
-                yield segment.text
+    def tokenize(self, text: str) -> TokenizerOutput:
+        """Converts text to tokens
+
+        Args:
+            text (str): Text for tokenization
+
+        Raises:
+            ?
+        """
+        return self._tokenizer.encode(text)
+
+
+class Llama3D1Service:
+    def __init__(self) -> None: ...
+
+    def ask(self, text: str) -> Iterable[str]:
+        """Ask LLM
+
+        Args:
+            text (str): Text to ask
+
+        Raises:
+            ?
+        """
 
 
 ensure_isimplementation(KokoroTextToSpeechService, TextToSpeechServiceProto)
